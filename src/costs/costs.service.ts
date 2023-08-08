@@ -45,4 +45,20 @@ export class CostsService {
 
     return createdCost;
   }
+
+  async deleteCost(costId: number) {
+    this.logger.verbose('deleteCost');
+    return this.prisma.cost.delete({ where: { id: costId } }).catch((error) => {
+      console.log(error);
+      if (error.code == 'P2025') {
+        throw new HttpException(
+          {
+            status: HttpStatus.NOT_FOUND,
+            error: 'Запись не найдена',
+          },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+    });
+  }
 }

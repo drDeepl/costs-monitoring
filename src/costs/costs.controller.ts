@@ -70,4 +70,20 @@ export class CostsController {
     this.logger.verbose('costs.controller: createCost');
     return this.costsService.createCost(dto.name, dto.mount, dto.userId);
   }
+
+  @Delete('delete/:costId')
+  @ApiOperation({ summary: 'create cost' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Created',
+    type: Cost,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.NOT_FOUND)
+  deleteCost(@Param('costId') costId: string): Promise<any> {
+    this.logger.verbose('costs.controller: createCost');
+    return this.costsService.deleteCost(+costId);
+  }
 }
