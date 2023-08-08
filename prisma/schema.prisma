@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model User{
+  id Int @id @default(autoincrement())
+  username String @db.VarChar(255) @unique
+  role String @db.VarChar(10)
+  passwordHash String @db.VarChar(255)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  refreshTokenHash String?  @db.VarChar(255) 
+  costs Cost[]
+  @@map(name: "users")
+}
+
+model Cost{
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(255)
+  mount Float @db.DoublePrecision
+  user Int
+  User User @relation(fields:[user], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  @@map(name: "costs")
+}
+
+model Role{
+  id Int @id @default(autoincrement())
+  role String @db.VarChar(32) @default("USER")
+  @@map(name: "roles")
+}
+
+
