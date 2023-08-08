@@ -27,8 +27,9 @@ model Cost{
   id Int @id @default(autoincrement())
   name String @db.VarChar(255)
   mount Float @db.DoublePrecision
-  user Int
-  User User @relation(fields:[user], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userId Int
+  date DateTime @default(now()) @db.Timestamp()
+  User User @relation(fields:[userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   @@map(name: "costs")
 }
 

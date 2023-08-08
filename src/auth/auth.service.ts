@@ -3,6 +3,8 @@ import {
   UnauthorizedException,
   ForbiddenException,
   Logger,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
@@ -68,12 +70,24 @@ export class AuthService {
   async signUp(dto: SignUpDto): Promise<Tokens> {
     this.logger.verbose('signUp');
     const hashData = await this.hashData(dto.password);
-    const newUser = await this.prisma.user.create({
-      data: { username: dto.username, passwordHash: hashData, role: 'user' },
-    });
-    const tokens = await this.getTokens(newUser.id, newUser.username);
-    this.updateHashRefreshToken(newUser.id, tokens.refresh_token);
-    return tokens;
+    try {
+      const newUser = await this.prisma.user.create({
+        data: { username: dto.username, passwordHash: hashData, role: 'user' },
+      });
+      const tokens = await this.getTokens(newUser.id, newUser.username);
+      this.updateHashRefreshToken(newUser.id, tokens.refresh_token);
+      return tokens;
+    } catch (error) {
+      this.logger.error(error);
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: 'Имя пользователя занято',
+        },
+        HttpStatus.FORBIDDEN,
+        { cause: error },
+      );
+    }
   }
 
   async signIn(dto: SignInDto): Promise<Tokens> {
